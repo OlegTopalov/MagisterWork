@@ -31,6 +31,23 @@ namespace Graphical
         private double[] _spwPhaseShift;
         private double[] _phaseData;
 
+
+        private void addPhaseShift(cuDoubleComplex[] data, double multiplier)
+        {
+            Parallel.For(0, _n, i =>
+            {
+                for (int j = 0; j < _n; j++)
+                {
+                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) +(multiplier*
+                                Math.PI * (i + j));
+                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
+                                         data[i * _n + j].imag * data[i * _n + j].imag);
+                    data[i * _n + j].real = (ampl * Math.Cos(phase));
+                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
+                }
+            });
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -138,7 +155,10 @@ namespace Graphical
             var helper = new CudaHelper();
 
             //AddNegativePhaseShift
-            Parallel.For(0, _n, i =>
+
+            addPhaseShift(_inputData,-1.0);
+
+            /*Parallel.For(0, _n, i =>
             {
                 for (int j = 0; j < _n; j++)
                 {
@@ -149,7 +169,7 @@ namespace Graphical
                     _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
                     _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
                 }
-            });
+            });*/
 
             //Perform Forward FFT
             _inputData = helper.PerformFFT(_inputData, _n, TransformDirection.Forward);
@@ -174,7 +194,9 @@ namespace Graphical
             _inputData = helper.PerformFFT(_inputData, _n, TransformDirection.Inverse);
 
             //AddPositivePhaseShift
-            Parallel.For(0, _n, i =>
+            addPhaseShift(_inputData, 1.0);
+
+            /*Parallel.For(0, _n, i =>
             {
                 for (int j = 0; j < _n; j++)
                 {
@@ -185,7 +207,7 @@ namespace Graphical
                     _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
                     _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
                 }
-            });
+            });*/
 
             //Normalize FFT
             Parallel.For(0, _n, i =>
