@@ -33,39 +33,7 @@ namespace Graphical
         private cuDoubleComplex[] _inputData;
         private double[] _spwPhaseShift;
         private double[] _phaseData;
-
-
-        private void addPhaseShift(cuDoubleComplex[] data, double multiplier)
-        {
-            Parallel.For(0, _n, i =>
-            {
-                for (int j = 0; j < _n; j++)
-                {
-                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) + (multiplier *
-                                Math.PI * (i + j));
-                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
-                                         data[i * _n + j].imag * data[i * _n + j].imag);
-                    data[i * _n + j].real = (ampl * Math.Cos(phase));
-                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
-                }
-            });
-        }
-
-        private void addPhaseShiftingSPW(cuDoubleComplex[] data, double multiplier, double[] shift)
-        {
-            Parallel.For(0, _n, i =>
-            {
-                for (int j = 0; j < _n; j++)
-                {
-                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) +
-                                multiplier * shift[i * _n + j];
-                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
-                                         data[i * _n + j].imag * data[i * _n + j].imag);
-                    data[i * _n + j].real = (ampl * Math.Cos(phase));
-                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
-                }
-            });
-        }
+        
 
         public Form1()
         {
@@ -181,24 +149,8 @@ namespace Graphical
                 });
             }
 
-            // var helper = new CudaHelper();
-
             //AddNegativePhaseShift
-
             addPhaseShift(_inputData, -1.0);
-
-            /*Parallel.For(0, _n, i =>
-            {
-                for (int j = 0; j < _n; j++)
-                {
-                    var phase = Math.Atan2(_inputData[i * _n + j].imag, _inputData[i * _n + j].real) -
-                                Math.PI * (i + j);
-                    var ampl = Math.Sqrt(_inputData[i * _n + j].real * _inputData[i * _n + j].real +
-                                         _inputData[i * _n + j].imag * _inputData[i * _n + j].imag);
-                    _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
-                    _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
-                }
-            });*/
 
             //Perform Forward FFT
             _inputData = FftRunner.PerformFft(_inputData, _n, TransformDirection.Forward);
@@ -214,25 +166,11 @@ namespace Graphical
             //AddPositivePhaseShift
             addPhaseShift(_inputData, 1.0);
 
-            /*Parallel.For(0, _n, i =>
-            {
-                for (int j = 0; j < _n; j++)
-                {
-                    var phase = Math.Atan2(_inputData[i * _n + j].imag, _inputData[i * _n + j].real) +
-                                Math.PI * (i + j);
-                    var ampl = Math.Sqrt(_inputData[i * _n + j].real * _inputData[i * _n + j].real +
-                                         _inputData[i * _n + j].imag * _inputData[i * _n + j].imag);
-                    _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
-                    _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
-                }
-            });*/
-
             //Normalize FFT
             Parallel.For(0, _n, i =>
             {
                 for (int j = 0; j < _n; j++)
                 {
-
                     _inputData[i * _n + j].real /= _n * _n;
                     _inputData[i * _n + j].imag /= _n * _n;
                 }
@@ -301,6 +239,55 @@ namespace Graphical
             }
         }
 
+        private void forwardButton_Click(object sender, EventArgs e)
+        {
+            _z += _deltaZ;
+            zInput.Text = _z.ToString(CultureInfo.InvariantCulture);
+            goButton_Click(sender, e);
+        }
+
+        private void backwardButton_Click(object sender, EventArgs e)
+        {
+            _z -= _deltaZ;
+            zInput.Text = _z.ToString(CultureInfo.InvariantCulture);
+            goButton_Click(sender, e);
+        }
+
+        private void saveAmplitudeButton_Click(object sender, EventArgs e)
+        {
+            saveAmplitudeDialog.Filter = @"Bitmap Image|*.bmp";
+            saveAmplitudeDialog.FileName = (_lambda / NanoConst).ToString(CultureInfo.InvariantCulture) + "nm; " +
+                                           (_z.ToString(CultureInfo.InvariantCulture)) + "m; " +
+                                           (_h / MicroConst).ToString(CultureInfo.InvariantCulture) + "pm; Amplitude";
+
+            if (saveAmplitudeDialog.ShowDialog() == DialogResult.OK)
+            {
+                outputAmplitudeImage.Image.Save(saveAmplitudeDialog.FileName);
+            }
+
+        }
+
+        private void savePhaseButton_Click(object sender, EventArgs e)
+        {
+            savePhaseDialog.Filter = @"Bitmap Image|*.bmp";
+            savePhaseDialog.FileName = (_lambda / NanoConst).ToString(CultureInfo.InvariantCulture) + "nm; " +
+                                           (_z.ToString(CultureInfo.InvariantCulture)) + "m; " +
+                                           (_h / MicroConst).ToString(CultureInfo.InvariantCulture) + "pm; Phase";
+            if (savePhaseDialog.ShowDialog() == DialogResult.OK)
+            {
+                outputPhaseImage.Image.Save(saveAmplitudeDialog.FileName);
+            }
+        }
+
+        private void useAmplitudeCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            _useAmplitude = !useAmplitudeCheckbox.Checked;
+            loadAmplitudeButton.Enabled = _useAmplitude;
+            if (useAmplitudeCheckbox.Checked)
+            {
+                inputAmplitudeImage.Image = null;
+            }
+        }
 
 
         #region Validation
@@ -450,54 +437,38 @@ namespace Graphical
 
         #endregion
 
-        private void forwardButton_Click(object sender, EventArgs e)
+        #region Shifting functions
+        private void addPhaseShift(cuDoubleComplex[] data, double multiplier)
         {
-            _z += _deltaZ;
-            zInput.Text = _z.ToString(CultureInfo.InvariantCulture);
-            goButton_Click(sender, e);
-        }
-
-        private void backwardButton_Click(object sender, EventArgs e)
-        {
-            _z -= _deltaZ;
-            zInput.Text = _z.ToString(CultureInfo.InvariantCulture);
-            goButton_Click(sender, e);
-        }
-
-        private void saveAmplitudeButton_Click(object sender, EventArgs e)
-        {
-            saveAmplitudeDialog.Filter = @"Bitmap Image|*.bmp";
-            saveAmplitudeDialog.FileName = (_lambda / NanoConst).ToString(CultureInfo.InvariantCulture) + "nm; " +
-                                           (_z.ToString(CultureInfo.InvariantCulture)) + "m; " +
-                                           (_h / MicroConst).ToString(CultureInfo.InvariantCulture) + "pm; Amplitude";
-
-            if (saveAmplitudeDialog.ShowDialog() == DialogResult.OK)
+            Parallel.For(0, _n, i =>
             {
-                outputAmplitudeImage.Image.Save(saveAmplitudeDialog.FileName);
-            }
-
+                for (int j = 0; j < _n; j++)
+                {
+                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) + (multiplier *
+                                                                                            Math.PI * (i + j));
+                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
+                                         data[i * _n + j].imag * data[i * _n + j].imag);
+                    data[i * _n + j].real = (ampl * Math.Cos(phase));
+                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
+                }
+            });
         }
 
-        private void savePhaseButton_Click(object sender, EventArgs e)
+        private void addPhaseShiftingSPW(cuDoubleComplex[] data, double multiplier, double[] shift)
         {
-            savePhaseDialog.Filter = @"Bitmap Image|*.bmp";
-            saveAmplitudeDialog.FileName = (_lambda / NanoConst).ToString(CultureInfo.InvariantCulture) + "nm; " +
-                                           (_z.ToString(CultureInfo.InvariantCulture)) + "m; " +
-                                           (_h / MicroConst).ToString(CultureInfo.InvariantCulture) + "pm; Phase";
-            if (savePhaseDialog.ShowDialog() == DialogResult.OK)
+            Parallel.For(0, _n, i =>
             {
-                outputPhaseImage.Image.Save(saveAmplitudeDialog.FileName);
-            }
+                for (int j = 0; j < _n; j++)
+                {
+                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) +
+                                multiplier * shift[i * _n + j];
+                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
+                                         data[i * _n + j].imag * data[i * _n + j].imag);
+                    data[i * _n + j].real = (ampl * Math.Cos(phase));
+                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
+                }
+            });
         }
-
-        private void useAmplitudeCheckbox_CheckedChanged(object sender, EventArgs e)
-        {
-            _useAmplitude = !useAmplitudeCheckbox.Checked;
-            loadAmplitudeButton.Enabled = _useAmplitude;
-            if (useAmplitudeCheckbox.Checked)
-            {
-                inputAmplitudeImage.Image = null;
-            }
-        }
+        #endregion
     }
 }
