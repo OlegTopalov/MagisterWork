@@ -152,7 +152,7 @@ namespace Graphical
                 });
             }
 
-            var helper = new CudaHelper();
+           // var helper = new CudaHelper();
 
             //AddNegativePhaseShift
 
@@ -172,7 +172,7 @@ namespace Graphical
             });*/
 
             //Perform Forward FFT
-            _inputData = helper.PerformFFT(_inputData, _n, TransformDirection.Forward);
+            _inputData = FftRunner.PerformFft(_inputData, _n, TransformDirection.Forward);
 
 
             //AddPhaseShiftingSPW
@@ -191,7 +191,7 @@ namespace Graphical
             });
 
             //Perform inverse FFT
-            _inputData = helper.PerformFFT(_inputData, _n, TransformDirection.Inverse);
+            _inputData = FftRunner.PerformFft(_inputData, _n, TransformDirection.Inverse);
 
             //AddPositivePhaseShift
             addPhaseShift(_inputData, 1.0);

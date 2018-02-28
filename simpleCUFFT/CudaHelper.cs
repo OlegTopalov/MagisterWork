@@ -42,8 +42,8 @@ namespace simpleCUFFT
 
         ~CudaHelper()
         {
-            f_plan.Dispose();
-            ctx.Dispose();
+            f_plan?.Dispose();
+            ctx?.Dispose();
         }
 
     }

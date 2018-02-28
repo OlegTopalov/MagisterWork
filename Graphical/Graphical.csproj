@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Graphical</RootNamespace>
     <AssemblyName>Graphical</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>C:\MyFolder\Deploy\</PublishUrl>
     <Install>true</Install>
@@ -39,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,7 +50,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <!--
   <PropertyGroup>
     <ManifestCertificateThumbprint>253EE1228EC93FBA3779717D2C727F59C1BB83CA</ManifestCertificateThumbprint>
   </PropertyGroup>
@@ -61,38 +65,31 @@
   <PropertyGroup>
     <SignManifests>true</SignManifests>
   </PropertyGroup>
+  -->
   <ItemGroup>
     <Reference Include="CudaBlas, Version=7.5.7.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaBlas.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaBlas.dll</HintPath>
     </Reference>
     <Reference Include="CudaFFT, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f066edfa1acb2f23, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaFFT.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaFFT.dll</HintPath>
     </Reference>
     <Reference Include="CudaRand, Version=7.5.7.0, Culture=neutral, PublicKeyToken=fe981579f4e9a066, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaRand.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaRand.dll</HintPath>
     </Reference>
     <Reference Include="CudaSolve, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaSolve.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaSolve.dll</HintPath>
     </Reference>
     <Reference Include="CudaSparse, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f65ee2ae6b331585, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaSparse.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\CudaSparse.dll</HintPath>
     </Reference>
     <Reference Include="ManagedCuda, Version=7.5.7.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\ManagedCuda.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\ManagedCuda.dll</HintPath>
     </Reference>
     <Reference Include="NPP, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\NPP.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\NPP.dll</HintPath>
     </Reference>
     <Reference Include="NVRTC, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\NVRTC.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net40\x64\NVRTC.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -141,10 +138,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Desktop\managedCuda-master\Samples\ManagedCudaSamples\simpleCUFFT\simpleCUFFT.csproj">
+    <ProjectReference Include="..\simpleCUFFT\simpleCUFFT.csproj">
       <Project>{d14002d9-e62f-42cf-8281-8adb964ee850}</Project>
       <Name>simpleCUFFT</Name>
     </ProjectReference>
