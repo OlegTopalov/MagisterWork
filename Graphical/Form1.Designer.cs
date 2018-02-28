@@ -69,6 +69,7 @@ namespace Graphical
             this.hInputPanel = new System.Windows.Forms.Panel();
             this.saveAmplitudeDialog = new System.Windows.Forms.SaveFileDialog();
             this.savePhaseDialog = new System.Windows.Forms.SaveFileDialog();
+            this.useAmplitudeCheckbox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.inputTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.inputPhaseImage)).BeginInit();
@@ -94,6 +95,7 @@ namespace Graphical
             // 
             // inputTab
             // 
+            this.inputTab.Controls.Add(this.useAmplitudeCheckbox);
             this.inputTab.Controls.Add(this.label2);
             this.inputTab.Controls.Add(this.usePhaseCheckbox);
             this.inputTab.Controls.Add(this.loadPhaseButton);
@@ -426,6 +428,17 @@ namespace Graphical
             this.hInputPanel.Size = new System.Drawing.Size(106, 26);
             this.hInputPanel.TabIndex = 19;
             // 
+            // useAmplitudeCheckbox
+            // 
+            this.useAmplitudeCheckbox.AutoSize = true;
+            this.useAmplitudeCheckbox.Location = new System.Drawing.Point(168, 455);
+            this.useAmplitudeCheckbox.Name = "useAmplitudeCheckbox";
+            this.useAmplitudeCheckbox.Size = new System.Drawing.Size(254, 17);
+            this.useAmplitudeCheckbox.TabIndex = 7;
+            this.useAmplitudeCheckbox.Text = "Не использовать распределение амплитуды";
+            this.useAmplitudeCheckbox.UseVisualStyleBackColor = true;
+            this.useAmplitudeCheckbox.CheckedChanged += new System.EventHandler(this.useAmplitudeCheckbox_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -513,6 +526,7 @@ namespace Graphical
         private System.Windows.Forms.Panel hInputPanel;
         private System.Windows.Forms.SaveFileDialog saveAmplitudeDialog;
         private System.Windows.Forms.SaveFileDialog savePhaseDialog;
+        private System.Windows.Forms.CheckBox useAmplitudeCheckbox;
     }
 }
 

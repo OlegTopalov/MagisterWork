@@ -17,9 +17,12 @@ namespace Graphical
         private const double Tolerance = 1E-6;
         private const double NanoConst = 1E-9;
         private const double MicroConst = 1E-6;
+        private const double MultZ = 4.5;
+
         private readonly Color _validationFailedColor = Color.FromArgb(100, Color.Maroon);
 
         private bool _usePhase = true;
+        private bool _useAmplitude = true;
         private double _lambda;
         private double _z;
         private double _deltaZ;
@@ -38,7 +41,7 @@ namespace Graphical
             {
                 for (int j = 0; j < _n; j++)
                 {
-                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) +(multiplier*
+                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) + (multiplier *
                                 Math.PI * (i + j));
                     var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
                                          data[i * _n + j].imag * data[i * _n + j].imag);
@@ -107,12 +110,9 @@ namespace Graphical
             {
                 inputPhaseImage.Load(loadPhaseDialog.FileName);
                 var phaseImage = new Bitmap(inputPhaseImage.Image);
+                _n = phaseImage.Width;
                 var lockedBmp = new LockBitmap(phaseImage);
                 lockedBmp.LockBits();
-                if (lockedBmp.Height != lockedBmp.Width && lockedBmp.Height != _n)
-                {
-                    throw new Exception("Изображения не одного размера!");
-                }
                 _phaseData = new double[_n * _n];
 
                 Parallel.For(0, _n,
@@ -121,7 +121,7 @@ namespace Graphical
                         for (int j = 0; j < _n; j++)
                         {
                             var pixelValue = lockedBmp.GetPixel(i, j);
-                            _phaseData[i * _n + j] = (double) pixelValue.G;
+                            _phaseData[i * _n + j] = (double)pixelValue.G;
                         }
                     });
                 lockedBmp.UnlockBits();
@@ -130,49 +130,62 @@ namespace Graphical
 
         private void goButton_Click(object sender, EventArgs e)
         {
-
-            var amplitudeImage = new Bitmap(inputAmplitudeImage.Image);
-            var lockedBmp = new LockBitmap(amplitudeImage);
-            lockedBmp.LockBits();
-            _n = lockedBmp.Height;
-            _inputData = new cuDoubleComplex[_n * _n];
-            _spwPhaseShift = new double[_n * _n];
-
             double k = 2 * Math.PI / _lambda;
             double temp = _lambda * _lambda / _h / _h / _n / _n;
-            Parallel.For(0, _n, i =>
+
+            if (_useAmplitude)
             {
-                for (int j = 0; j < _n; j++)
+                var amplitudeImage = new Bitmap(inputAmplitudeImage.Image);
+                var lockedBmp = new LockBitmap(amplitudeImage);
+                lockedBmp.LockBits();
+                _n = lockedBmp.Height;
+                _inputData = new cuDoubleComplex[_n * _n];
+                _spwPhaseShift = new double[_n * _n];
+
+              
+                Parallel.For(0, _n, i =>
                 {
-                    var pixelValue = lockedBmp.GetPixel(i, j);
-                    _inputData[i * _n + j].real = Math.Sqrt(pixelValue.G);
-                    _inputData[i * _n + j].imag = 0f;
-                    _spwPhaseShift[i * _n + j] =
-                        k * _z * Math.Sqrt(1 - temp * ((_n / 2 - i) * (_n / 2 - i) + (_n / 2 - j) * (_n / 2 - j)));
-                }
-            });
-            lockedBmp.UnlockBits();
-
-
+                    for (int j = 0; j < _n; j++)
+                    {
+                        var pixelValue = lockedBmp.GetPixel(i, j);
+                        double ampl = Math.Sqrt(pixelValue.G);
+                        double phase = 0f;
+                        if (_usePhase)
+                            phase = _phaseData[i * _n + j] / 255.0 * 2.0 * Math.PI;
+                        _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
+                        _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
+                        _spwPhaseShift[i * _n + j] =
+                            k * _z * Math.Sqrt(1 - temp * ((_n / 2 - i) * (_n / 2 - i) + (_n / 2 - j) * (_n / 2 - j)));
+                    }
+                });
+                lockedBmp.UnlockBits();
+            }
+            else
             if (_usePhase)
             {
+                _n = inputPhaseImage.Image.Width;
+                _inputData = new cuDoubleComplex[_n*_n];
+                _spwPhaseShift = new double[_n * _n];
                 Parallel.For(0, _n, i =>
                 {
                     for (int j = 0; j < _n; j++)
                     {
                         double phase = _phaseData[i * _n + j] / 255.0 * 2.0 * Math.PI;
-                        double ampl = _inputData[i * _n + j].real;
-                        _inputData[i * _n + j].real = (float) (ampl * Math.Cos(phase));
-                        _inputData[i * _n + j].imag = (float) (ampl * Math.Sin(phase));
+                        double ampl = Math.Sqrt(255.0);
+                        _inputData[i * _n + j].real = (float)(ampl * Math.Cos(phase));
+                        _inputData[i * _n + j].imag = (float)(ampl * Math.Sin(phase));
+                        _spwPhaseShift[i * _n + j] =
+                            k * _z * Math.Sqrt(
+                                1 - temp * ((_n / 2 - i) * (_n / 2 - i) + (_n / 2 - j) * (_n / 2 - j)));
                     }
                 });
             }
 
-           // var helper = new CudaHelper();
+            // var helper = new CudaHelper();
 
             //AddNegativePhaseShift
 
-            addPhaseShift(_inputData,-1.0);
+            addPhaseShift(_inputData, -1.0);
 
             /*Parallel.For(0, _n, i =>
             {
@@ -192,8 +205,8 @@ namespace Graphical
 
 
             //AddPhaseShiftingSPW
-            var multZ = 4.5;
-            addPhaseShiftingSPW(_inputData,multZ,_spwPhaseShift);
+
+            addPhaseShiftingSPW(_inputData, MultZ, _spwPhaseShift);
 
             //Perform inverse FFT
             _inputData = FftRunner.PerformFft(_inputData, _n, TransformDirection.Inverse);
@@ -224,8 +237,8 @@ namespace Graphical
                     _inputData[i * _n + j].imag /= _n * _n;
                 }
             });
+            var outputAmplitude = _useAmplitude ? new Bitmap(inputAmplitudeImage.Image) : new Bitmap(inputPhaseImage.Image);
 
-            var outputAmplitude = new Bitmap(inputAmplitudeImage.Image);
             var lockedOutputBmp = new LockBitmap(outputAmplitude);
             lockedOutputBmp.LockBits();
             var max = 0;
@@ -235,7 +248,7 @@ namespace Graphical
             {
                 for (int j = 0; j < _n; j++)
                 {
-                    intens[i * _n + j] = (int) Math.Floor(Math.Sqrt(
+                    intens[i * _n + j] = (int)Math.Floor(Math.Sqrt(
                         _inputData[i * _n + j].real * _inputData[i * _n + j].real +
                         _inputData[i * _n + j].imag * _inputData[i * _n + j].imag));
                     if (intens[i * _n + j] > max) max = intens[i * _n + j];
@@ -248,8 +261,8 @@ namespace Graphical
                 for (int j = 0; j < _n; j++)
                 {
                     var intensity = intens[i * _n + j] * 1.0f / max;
-                    var color = Color.FromArgb(255, (int) (intensity * rgb[0]), (int) (intensity * rgb[1]),
-                        (int) (intensity * rgb[2]));
+                    var color = Color.FromArgb(255, (int)(intensity * rgb[0]), (int)(intensity * rgb[1]),
+                        (int)(intensity * rgb[2]));
                     lockedOutputBmp.SetPixel(i, j, color);
                 }
             });
@@ -257,7 +270,7 @@ namespace Graphical
 
 
 
-            var outputPhase = new Bitmap(inputAmplitudeImage.Image);
+            var outputPhase = _useAmplitude ? new Bitmap(inputAmplitudeImage.Image) : new Bitmap(inputPhaseImage.Image);
             lockedOutputBmp = new LockBitmap(outputPhase);
             lockedOutputBmp.LockBits();
 
@@ -267,8 +280,8 @@ namespace Graphical
                 {
 
                     var x = Math.Atan2(_inputData[i * _n + j].imag, _inputData[i * _n + j].real) + Math.PI;
-                    var intensity = (int) Math.Floor(x * 255 / 2 / Math.PI);
-                    var color = Color.FromArgb(255, (int) (intensity), (int) (intensity), (int) (intensity));
+                    var intensity = (int)Math.Floor(x * 255 / 2 / Math.PI);
+                    var color = Color.FromArgb(255, (int)(intensity), (int)(intensity), (int)(intensity));
                     lockedOutputBmp.SetPixel(i, j, color);
                 }
             });
@@ -282,6 +295,10 @@ namespace Graphical
         {
             _usePhase = !usePhaseCheckbox.Checked;
             loadPhaseButton.Enabled = _usePhase;
+            if (usePhaseCheckbox.Checked)
+            {
+                inputPhaseImage.Image = null;
+            }
         }
 
 
@@ -321,7 +338,7 @@ namespace Graphical
 
         private void deltaZInput_Validating(object sender, CancelEventArgs e)
         {
-           // deltaZInput.Text = deltaZInput.Text.Replace(".", ",");
+            // deltaZInput.Text = deltaZInput.Text.Replace(".", ",");
 
             var validated = double.TryParse(deltaZInput.Text, out _deltaZ);
             if (!validated)
@@ -424,9 +441,9 @@ namespace Graphical
             ;
 
             // Don't want 0^x = 1 for x <> 0
-            rgb[0] = Math.Abs(red) < Tolerance ? 0 : (int) Math.Round(IntensityMax * Math.Pow(red * factor, Gamma));
-            rgb[1] = Math.Abs(green) < Tolerance ? 0 : (int) Math.Round(IntensityMax * Math.Pow(green * factor, Gamma));
-            rgb[2] = Math.Abs(blue) < Tolerance ? 0 : (int) Math.Round(IntensityMax * Math.Pow(blue * factor, Gamma));
+            rgb[0] = Math.Abs(red) < Tolerance ? 0 : (int)Math.Round(IntensityMax * Math.Pow(red * factor, Gamma));
+            rgb[1] = Math.Abs(green) < Tolerance ? 0 : (int)Math.Round(IntensityMax * Math.Pow(green * factor, Gamma));
+            rgb[2] = Math.Abs(blue) < Tolerance ? 0 : (int)Math.Round(IntensityMax * Math.Pow(blue * factor, Gamma));
 
             return rgb;
         }
@@ -470,6 +487,16 @@ namespace Graphical
             if (savePhaseDialog.ShowDialog() == DialogResult.OK)
             {
                 outputPhaseImage.Image.Save(saveAmplitudeDialog.FileName);
+            }
+        }
+
+        private void useAmplitudeCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            _useAmplitude = !useAmplitudeCheckbox.Checked;
+            loadAmplitudeButton.Enabled = _useAmplitude;
+            if (useAmplitudeCheckbox.Checked)
+            {
+                inputAmplitudeImage.Image = null;
             }
         }
     }
