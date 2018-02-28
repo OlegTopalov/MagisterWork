@@ -295,9 +295,9 @@ namespace Graphical
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(8, 100);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(45, 13);
+            this.label5.Size = new System.Drawing.Size(12, 13);
             this.label5.TabIndex = 4;
-            this.label5.Text = "Lambda";
+            this.label5.Text = "λ";
             // 
             // label6
             // 
@@ -313,9 +313,9 @@ namespace Graphical
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(8, 165);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(37, 13);
+            this.label7.Size = new System.Drawing.Size(21, 13);
             this.label7.TabIndex = 6;
-            this.label7.Text = "deltaZ";
+            this.label7.Text = "ΔZ";
             // 
             // label8
             // 
@@ -390,9 +390,9 @@ namespace Graphical
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(171, 195);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(27, 13);
+            this.label12.Size = new System.Drawing.Size(29, 13);
             this.label12.TabIndex = 15;
-            this.label12.Text = "пкм";
+            this.label12.Text = "мкм";
             // 
             // lambdaInputPanel
             // 

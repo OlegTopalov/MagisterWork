@@ -48,6 +48,22 @@ namespace Graphical
             });
         }
 
+        private void addPhaseShiftingSPW(cuDoubleComplex[] data, double multiplier, double[] shift)
+        {
+            Parallel.For(0, _n, i =>
+            {
+                for (int j = 0; j < _n; j++)
+                {
+                    var phase = Math.Atan2(data[i * _n + j].imag, data[i * _n + j].real) +
+                                multiplier * shift[i * _n + j];
+                    var ampl = Math.Sqrt(data[i * _n + j].real * data[i * _n + j].real +
+                                         data[i * _n + j].imag * data[i * _n + j].imag);
+                    data[i * _n + j].real = (ampl * Math.Cos(phase));
+                    data[i * _n + j].imag = (ampl * Math.Sin(phase));
+                }
+            });
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -177,18 +193,7 @@ namespace Graphical
 
             //AddPhaseShiftingSPW
             var multZ = 4.5;
-            Parallel.For(0, _n, i =>
-            {
-                for (int j = 0; j < _n; j++)
-                {
-                    var phase = Math.Atan2(_inputData[i * _n + j].imag, _inputData[i * _n + j].real) +
-                                multZ * _spwPhaseShift[i * _n + j];
-                    var ampl = Math.Sqrt(_inputData[i * _n + j].real * _inputData[i * _n + j].real +
-                                         _inputData[i * _n + j].imag * _inputData[i * _n + j].imag);
-                    _inputData[i * _n + j].real = (ampl * Math.Cos(phase));
-                    _inputData[i * _n + j].imag = (ampl * Math.Sin(phase));
-                }
-            });
+            addPhaseShiftingSPW(_inputData,multZ,_spwPhaseShift);
 
             //Perform inverse FFT
             _inputData = FftRunner.PerformFft(_inputData, _n, TransformDirection.Inverse);
@@ -285,7 +290,7 @@ namespace Graphical
 
         private void lambdaInput_Validating(object sender, CancelEventArgs e)
         {
-            lambdaInput.Text = lambdaInput.Text.Replace(".", ",");
+            //lambdaInput.Text = lambdaInput.Text.Replace(".", ",");
 
             var validated = double.TryParse(lambdaInput.Text, out _lambda);
             if (!validated)
@@ -301,7 +306,7 @@ namespace Graphical
 
         private void zInput_Validating(object sender, CancelEventArgs e)
         {
-            zInput.Text = zInput.Text.Replace(".", ",");
+            //zInput.Text = zInput.Text.Replace(".", ",");
 
             var validated = double.TryParse(zInput.Text, out _z);
             if (!validated)
@@ -316,7 +321,7 @@ namespace Graphical
 
         private void deltaZInput_Validating(object sender, CancelEventArgs e)
         {
-            deltaZInput.Text = deltaZInput.Text.Replace(".", ",");
+           // deltaZInput.Text = deltaZInput.Text.Replace(".", ",");
 
             var validated = double.TryParse(deltaZInput.Text, out _deltaZ);
             if (!validated)
@@ -331,7 +336,7 @@ namespace Graphical
 
         private void hInput_Validating(object sender, CancelEventArgs e)
         {
-            hInput.Text = hInput.Text.Replace(".", ",");
+            //hInput.Text = hInput.Text.Replace(".", ",");
 
             var validated = double.TryParse(hInput.Text, out _h);
             if (!validated)
