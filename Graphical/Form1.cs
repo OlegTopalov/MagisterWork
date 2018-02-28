@@ -33,7 +33,7 @@ namespace Graphical
         private cuDoubleComplex[] _inputData;
         private double[] _spwPhaseShift;
         private double[] _phaseData;
-        
+
 
         public Form1()
         {
@@ -110,7 +110,7 @@ namespace Graphical
                 _inputData = new cuDoubleComplex[_n * _n];
                 _spwPhaseShift = new double[_n * _n];
 
-              
+
                 Parallel.For(0, _n, i =>
                 {
                     for (int j = 0; j < _n; j++)
@@ -132,7 +132,7 @@ namespace Graphical
             if (_usePhase)
             {
                 _n = inputPhaseImage.Image.Width;
-                _inputData = new cuDoubleComplex[_n*_n];
+                _inputData = new cuDoubleComplex[_n * _n];
                 _spwPhaseShift = new double[_n * _n];
                 Parallel.For(0, _n, i =>
                 {
@@ -294,9 +294,9 @@ namespace Graphical
 
         private void lambdaInput_Validating(object sender, CancelEventArgs e)
         {
-            //lambdaInput.Text = lambdaInput.Text.Replace(".", ",");
+            lambdaInput.Text = lambdaInput.Text.Replace(",", ".");
 
-            var validated = double.TryParse(lambdaInput.Text, out _lambda);
+            var validated = double.TryParse(lambdaInput.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out _lambda);
             if (!validated)
             {
                 lambdaInputPanel.BackColor = _validationFailedColor;
@@ -310,9 +310,9 @@ namespace Graphical
 
         private void zInput_Validating(object sender, CancelEventArgs e)
         {
-            //zInput.Text = zInput.Text.Replace(".", ",");
+            zInput.Text = zInput.Text.Replace(",", ".");
 
-            var validated = double.TryParse(zInput.Text, out _z);
+            var validated = double.TryParse(zInput.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out _z);
             if (!validated)
             {
                 zInputPanel.BackColor = _validationFailedColor;
@@ -325,9 +325,9 @@ namespace Graphical
 
         private void deltaZInput_Validating(object sender, CancelEventArgs e)
         {
-            // deltaZInput.Text = deltaZInput.Text.Replace(".", ",");
+            deltaZInput.Text = deltaZInput.Text.Replace(",", ".");
 
-            var validated = double.TryParse(deltaZInput.Text, out _deltaZ);
+            var validated = double.TryParse(deltaZInput.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out _deltaZ);
             if (!validated)
             {
                 deltaZInputPanel.BackColor = _validationFailedColor;
@@ -340,9 +340,9 @@ namespace Graphical
 
         private void hInput_Validating(object sender, CancelEventArgs e)
         {
-            //hInput.Text = hInput.Text.Replace(".", ",");
+            hInput.Text = hInput.Text.Replace(",", ".");
 
-            var validated = double.TryParse(hInput.Text, out _h);
+            var validated = double.TryParse(hInput.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out _h);
             if (!validated)
             {
                 hInputPanel.BackColor = _validationFailedColor;
